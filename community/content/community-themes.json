@@ -304,5 +304,11 @@
     "backgroundColor": "oklch(17.0% 0.072 305.0 / 1)",
     "mainColor": "oklch(75.0% 0.175 195.0 / 1)",
     "secondaryColor": "oklch(80.0% 0.195 330.0 / 1)"
+  },
+  {
+    "id": "harajuku-pop",
+    "backgroundColor": "oklch(96.0% 0.025 85.0 / 1)",
+    "mainColor": "oklch(72.0% 0.225 320.0 / 1)",
+    "secondaryColor": "oklch(80.0% 0.195 200.0 / 1)"
   }
 ]
