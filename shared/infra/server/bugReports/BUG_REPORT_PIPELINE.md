@@ -61,14 +61,16 @@ Keep the tables and bucket private for v1. The server uses `SUPABASE_SERVICE_ROL
 
 ### GitHub
 
-Create a fine-grained personal access token for `lingdojo/kana-dojo` with:
+Production already has an encrypted Vercel `GITHUB_PAT`, and this pipeline reuses it.
+
+If that token ever needs to be rotated, create a fine-grained personal access token for `lingdojo/kana-dojo` with:
 
 ```txt
 Issues: Read and write
 Metadata: Read
 ```
 
-Store it in Vercel as `GITHUB_PAT`.
+Store it in Vercel as `GITHUB_PAT` for Production.
 
 ### DeepSeek
 
@@ -82,24 +84,43 @@ DEEPSEEK_BUG_REPORT_MODEL=deepseek-chat
 
 ### Vercel
 
-Add these env vars to Production and Preview:
+The pipeline only needs Production env vars because we are not doing end-to-end GitHub issue creation from Preview.
+
+These Production vars have been added through the Vercel CLI:
 
 ```txt
 TALLY_WEBHOOK_SECRET=
 TALLY_WEBHOOK_TOKEN=
 BUG_REPORT_PROCESSOR_SECRET=
 
-DEEPSEEK_API_KEY=
-DEEPSEEK_BUG_REPORT_MODEL=deepseek-chat
-
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_BUG_REPORT_BUCKET=bug-report-attachments
 
-GITHUB_PAT=
 GITHUB_REPO_OWNER=lingdojo
 GITHUB_REPO_NAME=kana-dojo
 ```
+
+These Production vars already existed and are reused:
+
+```txt
+CRON_SECRET
+GITHUB_PAT
+```
+
+This Production var is still required:
+
+```txt
+DEEPSEEK_API_KEY
+```
+
+Optional:
+
+```txt
+DEEPSEEK_BUG_REPORT_MODEL=deepseek-chat
+```
+
+Production env vars were also pulled into ignored `.env.local`. The previous local file was backed up to an ignored `.env.local.backup-*` file.
 
 `CRON_SECRET` is already used by existing cron routes. The processor route accepts either `BUG_REPORT_PROCESSOR_SECRET` or `CRON_SECRET`.
 
@@ -122,6 +143,7 @@ Authorization: Bearer <TALLY_WEBHOOK_TOKEN>
 ```
 
 5. Add the signing secret matching `TALLY_WEBHOOK_SECRET`.
+   - The generated values are available locally in ignored `.env.local`.
 6. Submit one test report without an attachment.
 7. Submit one test report with a screenshot.
 
@@ -129,8 +151,6 @@ Authorization: Bearer <TALLY_WEBHOOK_TOKEN>
 
 These steps cannot be completed from this terminal without account-specific secrets or browser authorization:
 
-- Vercel env vars: require the actual secret values.
-- GitHub PAT: must be created in GitHub with your account permissions.
 - DeepSeek API key: must be created in the DeepSeek dashboard.
 - Tally webhook: must be configured inside the Tally form dashboard.
 
@@ -273,16 +293,17 @@ The source section includes the Supabase report ID and Tally submission ID so ma
 - [x] Run `supabase login`.
 - [x] Run `supabase link --project-ref tplfaltoxejyvyxvwwoo`.
 - [x] Run `supabase db push`.
-- [ ] Add Vercel env vars.
-- [ ] Deploy to Preview.
-- [ ] Temporarily point Tally webhook at Preview if desired.
+- [x] Add Production Vercel env vars available from terminal.
+- [x] Reuse existing Production `GITHUB_PAT`.
+- [x] Pull Production Vercel env vars into ignored `.env.local`.
+- [ ] Add `DEEPSEEK_API_KEY` to Vercel Production.
+- [ ] Deploy to Production after `DEEPSEEK_API_KEY` is set.
 - [ ] Submit one Tally report without an attachment.
 - [ ] Confirm a `bug_reports` row is created.
 - [ ] Confirm a GitHub issue is created.
 - [ ] Submit one report with a screenshot.
 - [ ] Confirm `bug_report_attachments` metadata is created.
 - [ ] Confirm the GitHub issue includes the attachment link.
-- [ ] Deploy to Production.
 - [ ] Point Tally webhook at production.
 - [ ] Submit a production smoke-test report.
 - [ ] Monitor Vercel logs and Supabase statuses for 24 hours.
